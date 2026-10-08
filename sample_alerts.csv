@@ -1,0 +1,13 @@
+_time,rule_name,host,user,severity
+2026-10-01T10:04:00Z,Repeated login failure,lab-pc-01,alice,medium
+2026-10-01T10:00:00Z,Repeated login failure,lab-pc-01,alice,medium
+2026-10-01T10:01:00Z,Repeated login failure,lab-pc-01,alice,medium
+2026-10-01T10:05:00Z,Repeated login failure,lab-pc-01,alice,medium
+2026-10-01T10:06:00Z,Repeated login failure,lab-pc-01,alice,medium
+2026-10-01T11:00:00Z,Unusual process,lab-pc-02,bob,high
+2026-10-01T11:20:00Z,Unusual process,lab-pc-02,bob,high
+2026-10-01T12:00:00Z,DNS burst,,service-demo,
+2026-10-01T12:02:00Z,DNS burst,,service-demo,
+2026-10-01T12:30:00Z,New account,lab-pc-03,,low
+invalid-time,Unusual process,lab-pc-02,bob,high
+2026-10-01T12:45:00Z,,lab-pc-03,carol,low

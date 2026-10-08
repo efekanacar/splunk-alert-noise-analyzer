@@ -1,0 +1,14 @@
+{
+  "search": "search index=REPLACE_WITH_YOUR_ALERT_INDEX | fields _time REPLACE_WITH_RULE_FIELD host user severity",
+  "fields": {
+    "_time": "_time",
+    "rule_name": "rule_name",
+    "host": "host",
+    "user": "user",
+    "severity": "severity"
+  },
+  "search_timeout_seconds": 120,
+  "request_timeout_seconds": 15,
+  "page_size": 1000,
+  "max_results": 100000
+}
