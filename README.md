@@ -2,7 +2,7 @@
 
 Splunk'ta takip edilen alarm tetiklenmelerinin yoğunluğunu ve kısa aralıklarla tekrarını inceleyen küçük bir araç. Türkçe arayüz yalnızca kural adı, zaman ve bunlardan hesaplanan ölçümleri gösterir.
 
-![Sahte test verileriyle arayüz](docs/arayuz.png)
+![Splunk Alert Noise Analyzer arayüzü](docs/arayuz.png)
 
 ## Ubuntu'da başlat
 
