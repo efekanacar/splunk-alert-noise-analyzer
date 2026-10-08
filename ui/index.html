@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="session-token" content="__SESSION_TOKEN__">
+  <title>Splunk Alert Noise Analyzer</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">&gt;_</span><div>Alert Noise<span class="brand-sub">SPLUNK ANALYZER</span></div></div>
+    <div class="header-right"><span class="local-label"><span class="dot"></span>Yerel çalışma alanı</span></div>
+  </header>
+  <div class="layout">
+    <aside>
+      <div class="sidebar-title"><span class="eyebrow">01 / BAĞLANTI</span><h2>Splunk'a bağlan.</h2><p>Hesabınla giriş yap, takip edilen alarm tetiklenmelerini incele.</p></div>
+      <form id="connect-form">
+        <fieldset id="connection-fields">
+          <label for="address">Management adresi</label>
+          <input id="address" type="url" required value="https://localhost:8089" spellcheck="false" placeholder="https://splunk:8089">
+          <p class="field-hint">8089 management API · 8000 web arayüzü</p>
+          <div class="auth-tabs" role="group" aria-label="Giriş yöntemi"><button id="password-auth" type="button" class="selected" aria-pressed="true">Kullanıcı / parola</button><button id="token-auth" type="button" aria-pressed="false">Token</button></div>
+          <div id="password-fields">
+            <label for="username">Kullanıcı adı</label><input id="username" required maxlength="256" autocomplete="off" placeholder="Splunk kullanıcısı" spellcheck="false">
+            <label for="password">Parola</label><input id="password" required maxlength="4096" type="password" autocomplete="off" placeholder="Splunk parolan">
+          </div>
+          <div id="token-fields" hidden><label for="token">Bearer token</label><input id="token" maxlength="4096" type="password" autocomplete="off" placeholder="Splunk erişim token'ı"></div>
+          <label class="check-label"><input id="tls" type="checkbox" checked><span>TLS sertifikasını doğrula</span><span class="secure-mark" aria-hidden="true">✓</span></label>
+          <p id="tls-warning" class="field-hint warning" hidden>Lab modu: bağlantı sertifikası doğrulanmayacak.</p>
+          <details><summary>Özel CA sertifikası</summary><label for="ca-bundle">Ubuntu'daki CA dosya yolu</label><input id="ca-bundle" maxlength="2048" placeholder="/path/to/ca.pem" spellcheck="false"></details>
+        </fieldset>
+        <button id="connect" class="button primary wide" type="submit"><span>Bağlan</span><span aria-hidden="true">→</span></button>
+      </form>
+      <div id="connection-note" class="connection-note">Parola/token yalnızca sunucu belleğinde tutulur. Oturum 1 saat sonra sona erer.</div>
+      <div class="sidebar-footer"><span class="mini-icon" aria-hidden="true">◷</span><p>Varsayılan son <strong>24 saat</strong> incelenir. Tekrar penceresi <strong>5 dakika</strong>. Tüm zamanlar UTC'dir.</p></div>
+    </aside>
+    <main>
+      <div class="page-heading"><div><span class="eyebrow">ALARM YOĞUNLUĞU</span><h1>Alarmların ritmini gör.</h1><p>Yoğunluğu ve tekrarları incele, araştırılacak kuralları belirle.</p></div><div class="session-actions"><span id="connection-status" class="badge neutral">Bağlantı bekleniyor</span><button id="disconnect" class="text-button" disabled>Bağlantıyı kes</button></div></div>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <section class="summary-grid" aria-label="Analiz özeti">
+        <article class="summary-card"><div><span class="status-dot ok"></span><span>Alarm tetiklenmesi</span><span class="summary-code">TOTAL</span></div><strong id="count-total">—</strong><p id="total-detail">Seçilen zaman aralığında</p></article>
+        <article class="summary-card"><div><span class="status-dot no-data"></span><span>Farklı kural</span><span class="summary-code">RULES</span></div><strong id="count-rules">—</strong><p>Geçerli kayıtlardaki kurallar</p></article>
+        <article class="summary-card"><div><span class="status-dot delayed"></span><span>Tekrar kaydı</span><span class="summary-code">REPEATS</span></div><strong id="count-repeats">—</strong><p id="repeat-detail">Her grubun ilk kaydı hariç</p></article>
+        <article class="summary-card"><div><span class="status-dot error"></span><span>Tekrar oranı</span><span class="summary-code">RATIO</span></div><strong id="count-ratio">—</strong><p>Tekrar / geçerli kayıt</p></article>
+      </section>
+      <section class="control-bar" aria-label="Analiz ayarları">
+        <div class="time-field"><label for="earliest">Başlangıç</label><input id="earliest" value="-24h" placeholder="-24h veya ISO zaman" spellcheck="false"></div>
+        <div class="time-field"><label for="latest">Bitiş</label><input id="latest" value="now" placeholder="now veya ISO zaman" spellcheck="false"></div>
+        <div><label for="window">Tekrar penceresi</label><div class="window-field"><input id="window" type="number" min="0.001" max="525600" step="any" value="5"><span>dk</span></div></div>
+        <div class="control-action"><button id="run" class="button primary" disabled><span class="play-icon" aria-hidden="true">▷</span> Analizi çalıştır</button></div>
+      </section>
+      <section class="panel results-panel">
+        <div class="panel-heading"><div><h2>Analiz sonuçları</h2><p id="checked-at">Splunk'a bağlanıp analizi başlattığında sonuçlar burada görünecek.</p></div><div id="download-links" class="download-links" hidden><a id="html-link" class="text-button" target="_blank" rel="noopener">HTML aç ↗</a><a id="zip-link" class="button secondary" download="splunk-alarm-raporu.zip">↓ Raporları indir</a></div></div>
+        <div id="results-empty" class="empty-results"><span class="empty-symbol" aria-hidden="true">≋</span><h3>İlk analizin için hazır.</h3><p>Soldan Splunk hesabınla giriş yap.<br>Zaman aralığını seç ve alarm tetiklenmelerini incele.</p></div>
+        <div id="result-toolbar" class="result-toolbar" hidden><div class="filter-buttons" role="group" aria-label="Sonuç görünümü"><button class="selected" data-view="overview" aria-pressed="true">Genel bakış</button><button data-view="candidates" aria-pressed="false">Kurallar</button><button data-view="repeats" aria-pressed="false">Tekrar grupları</button><button data-view="alerts" aria-pressed="false">Kayıtlar</button><button data-view="rejected" aria-pressed="false">Atlananlar</button></div></div>
+        <div id="overview" hidden>
+          <div class="chart-grid"><section class="chart-card"><h3>En çok tetiklenen 10 kural</h3><p>Alarm sayısı ve toplam içindeki payı</p><div id="rule-chart"></div></section><section class="chart-card"><h3>Saatlik dağılım</h3><p>Tetiklenme yoğunluğu · UTC</p><div id="hour-chart"></div></section></div>
+        </div>
+        <div id="table-panel" hidden>
+          <div class="table-intro"><div><h3 id="table-title"></h3><p id="table-description"></p></div><a id="table-download" class="text-button" download>CSV indir ↓</a></div>
+          <div class="table-controls"><input id="table-search" type="search" placeholder="Kural veya zaman ara…" aria-label="Tabloda ara"><select id="rule-filter" aria-label="Kural filtresi"><option value="">Tüm kurallar</option></select><span id="table-count"></span></div>
+          <div id="result-table" class="table-scroll"></div>
+          <div class="pagination"><p id="table-limit"></p><div><button id="previous" class="button secondary" aria-label="Önceki sayfa">←</button><span id="page-label"></span><button id="next" class="button secondary" aria-label="Sonraki sayfa">→</button></div></div>
+        </div>
+        <div class="panel-footnote"><span aria-hidden="true">ⓘ</span><div id="scope-note">Tekrarlar aynı kuralın kısa aralıklarla yeniden tetiklenmesidir. İnceleme adayıdır; otomatik false positive kararı verilmez.</div></div>
+      </section>
+      <footer class="main-footer"><span>Yalnız okuma · Management API · <span id="footer-status">Hazır</span></span><span class="author">Efekan Acar</span></footer>
+    </main>
+  </div>
+</body>
+</html>
