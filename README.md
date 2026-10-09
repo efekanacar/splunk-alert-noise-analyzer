@@ -1,6 +1,6 @@
 # Splunk Alert Noise Analyzer
 
-Splunk'ta takip edilen alarm tetiklenmelerinin yoğunluğunu ve kısa aralıklarla tekrarını inceleyen küçük bir araç. Türkçe arayüz yalnızca kural adı, zaman ve bunlardan hesaplanan ölçümleri gösterir.
+Splunk'ta takip edilen alarm tetiklenmelerinin yoğunluğunu ve kısa aralıklarla tekrarını inceleyen küçük bir araç. Kural adı, zaman ve bunlardan hesaplanan ölçümleri gösterir.
 
 ![Splunk Alert Noise Analyzer arayüzü](docs/arayuz.png)
 
